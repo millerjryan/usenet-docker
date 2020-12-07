@@ -9,44 +9,20 @@ services:
             - 80:80
         restart: always
 
-    sabnzbd:
-        image: linuxserver/sabnzbd:latest
-        container_name: sabnzbd
+    watchtower:
+        image: containrrr/watchtower:latest
+        container_name: watchtower
         volumes:
-            - /data_directory_path/config/sabnzbd:/config
-            - /data_directory_path/Downloads/complete:/downloads
-            - /data_directory_path/Downloads/incomplete:/incomplete-downloads
-        ports:
-            - 8080:8080
-        env_file: uidgid.env
-        environment:
-            - EDGE=1
-            - VIRTUAL_HOST=sabnzbd.HOSTNAME.com
-            - VIRTUAL_PORT=8080
-        restart: always
-
-    couchpotato:
-        image: linuxserver/couchpotato:latest
-        container_name: couchpotato
-        volumes:
-            - /data_directory_path/config/couchpotato:/config
-            - /data_directory_path/Downloads/complete:/downloads
-            - /data_directory_path/Movies:/movies
-        ports:
-            - 5050:5050
-        env_file: uidgid.env
-        environment:
-            - VIRTUAL_HOST=couchpotato.HOSTNAME.com
-            - VIRTUAL_PORT=5050
+            - /var/run/docker.sock:/var/run/docker.soc
         restart: always
 
     plex:
         image: linuxserver/plex
         container_name: plex
         volumes:
-            - /data_directory_path/config/plex:/config
-            - /data_directory_path/TV:/data/tvshows
-            - /data_directory_path/Movies:/data/movies
+            - /mnt/config/plex:/config
+            - /mnt/Media/TV:/data/tvshows
+            - /mnt/Media/Movies:/data/movies
         ports:
             - 32469:32469
             - 32400:32400
@@ -60,53 +36,39 @@ services:
             - 32414:32414/udp
         env_file: uidgid.env
         environment:
-            - VIRTUAL_HOST=plex.HOSTNAME.com
+            - VIRTUAL_HOST=plex.jomi.wtf
             - VIRTUAL_PORT=32400
+            - PLEX_CLAIM=claim-AUdEsMzA7oUaPLd_RqjF
         restart: always
 
     sonarr:
-        image: linuxserver/sonarr
+        image: ghcr.io/linuxserver/sonarr
         container_name: sonarr
         volumes:
-            - /data_directory_path/config/sonarr:/config
+            - /mnt/config/sonarr:/config
             - /etc/localtime:/etc/localtime:ro
-            - /data_directory_path/TV:/tv
-            - /data_directory_path/Downloads/complete:/downloads
+            - /mnt/Media/TV:/tv
+            - /mnt/Downloads/complete:/downloads
         ports:
             - 8989:8989
         env_file: uidgid.env
         environment:
-            - VIRTUAL_HOST=sonarr.HOSTNAME.com
+            - VIRTUAL_HOST=sonarr.jomi.wtf
             - VIRTUAL_PORT=8989
         restart: always
 
-    plexpy:
-        image: linuxserver/plexpy
-        container_name: plexpy
-        volumes:
-            - /data_directory_path/config/plexpy:/config
-            - /etc/localtime:/etc/localtime:ro
-            - /data_directory_path/config/plex/Library/Application Support/Plex Media Server/Logs:/logs:ro
-        ports:
-            - 8181:8181
-        env_file: uidgid.env
-        environment:
-            - VIRTUAL_HOST=plexpy.HOSTNAME.com
-            - VIRTUAL_PORT=8181
-        restart: always
-
     nzbhydra:
-        image: linuxserver/hydra
+        image: linuxserver/hydra2
         container_name: nzbhydra
         volumes:
-            - /data_directory_path/config/nzbhydra:/config
-            - /data_directory_path/Downloads:/downloads
+            - /mnt/config/nzbhydra:/config
+            - /mnt/Downloads:/downloads
             - /etc/localtime:/etc/localtime:ro
         ports:
             - 5075:5075
         env_file: uidgid.env
         environment:
-            - VIRTUAL_HOST=nzbhydra.HOSTNAME.com
+            - VIRTUAL_HOST=nzbhydra.jomi.wtf
             - VIRTUAL_PORT=5075
         restart: always
 
@@ -114,40 +76,40 @@ services:
         image: linuxserver/muximux
         container_name: muximux
         volumes:
-            - /data_directory_path/config/muximux:/config
+            - /mnt/config/muximux:/config
             - /etc/localtime:/etc/localtime:ro
         env_file: uidgid.env
         environment:
-            - VIRTUAL_HOST=muximux.HOSTNAME.com
+            - VIRTUAL_HOST=muximux.jomi.wtf
         restart: always
 
     radarr:
         image: linuxserver/radarr
         container_name: radarr
         volumes:
-            - /data_directory_path/config/radarr:/config
-            - /data_directory_path/Movies:/movies
-            - /data_directory_path/Downloads/complete:/downloads
+            - /mnt/config/radarr:/config
+            - /mnt/Media/Movies:/movies
+            - /mnt/Downloads/complete:/downloads
             - /etc/localtime:/etc/localtime:ro
         ports:
             - 7878:7878
         env_file: uidgid.env
         environment:
-            - VIRTUAL_HOST=radarr.HOSTNAME.com
+            - VIRTUAL_HOST=radarr.jomi.wtf
             - VIRTUAL_PORT=7878
         restart: always
 
     ombi:
-        image: linuxserver/ombi
+        image: ghcr.io/linuxserver/ombi
         container_name: ombi
         volumes:
-            - /data_directory_path/config/ombi:/config
+            - /mnt/config/ombi:/config
             - /etc/localtime:/etc/localtime:ro
         ports:
             - 3579:3579
         env_file: uidgid.env
         environment:
-            - VIRTUAL_HOST=ombi.HOSTNAME.com
+            - VIRTUAL_HOST=ombi.jomi.wtf
             - VIRTUAL_PORT=3579
         restart: always
 
@@ -155,13 +117,34 @@ services:
         image: linuxserver/nzbget
         container_name: nzbget
         volumes:
-            - /data_directory_path/config/nzbget:/config
-            - /data_directory_path/Downloads/complete:/complete
-            - /data_directory_path/Downloads:/downloads
+            - /mnt/config/nzbget:/config
+            - /mnt/Downloads/complete:/complete
+            - /mnt/Downloads:/downloads
+            - /mnt/nzb_intermediate:/intermediate
         ports:
             - 6789:6789
         env_file: uidgid.env
         environment:
-            - VIRTUAL_HOST=nzbget.HOSTNAME.com
+            - VIRTUAL_HOST=nzbget.jomi.wtf
             - VIRTUAL_PORT=6789
+        restart: always
+
+    pihole:
+        image: pihole/pihole
+        container_name: pihole
+        volumes:
+            - /mnt/config/etc-pihole/:/etc/pihole/
+            - /mnt/config/etc-dnsmasq.d/:/etc/dnsmasq.d/
+        ports:
+            - 53:53
+            - 53:53/udp
+            - 67:67/udp
+            - 81:80
+            - 443:443
+        env_file: uidgid.env
+        environment:
+            - TZ=America/New_York
+            - WEBPASSWORD=00Broadcast
+        cap_add:
+            - NET_ADMIN
         restart: always
